@@ -1,29 +1,49 @@
 package main
 
 import (
-   "fmt"
-   "net/http"
-
-   "github.com/prometheus/client_golang/prometheus"
-   "github.com/prometheus/client_golang/prometheus/promhttp"
+    "github.com/prometheus/client_golang/prometheus"
+    "github.com/prometheus/client_golang/prometheus/promauto"
+    "github.com/prometheus/client_golang/prometheus/promhttp"
+    "log"
+    "math/rand"
+    "net/http"
+    "time"
 )
 
-var pingCounter = prometheus.NewCounter(
-   prometheus.CounterOpts{
-       Name: "ping_request_count",
-       Help: "No of request handled by Ping handler",
-   },
+var (
+    counter = promauto.NewCounter(prometheus.CounterOpts{
+      Name: "ping_counter",
+      Help: "Counting the total number of requests handled",
+    })
+    
+    // must be registered
+    gauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+      Name: "ping_gauge",
+      Help: "testing camelCase labels",
+    }, []string{"node", "nameSpace"})
 )
 
-func ping(w http.ResponseWriter, req *http.Request) {
-   pingCounter.Inc()
-   fmt.Fprintf(w, "pong")
+func recordMetrics() {
+    go func() {
+      for {
+        counter.Inc()
+        gauge.WithLabelValues("node-1", "namespace-b").Set(rand.Float64())
+        time.Sleep(time.Second * 5)
+      }
+    }()
+}
+
+func init() {
+    prometheus.MustRegister(gauge)
 }
 
 func main() {
-   prometheus.MustRegister(pingCounter)
-
-   http.HandleFunc("/ping", ping)
-   http.Handle("/metrics", promhttp.Handler())
-   http.ListenAndServe(":8090", nil)
+    recordMetrics()
+    
+    srv := http.NewServeMux()
+    srv.Handle("/metrics", promhttp.Handler())
+    
+    if err := http.ListenAndServe(":8090", srv); err != nil {
+        log.Fatalf("unable to start server: %v", err)
+    }
 }
