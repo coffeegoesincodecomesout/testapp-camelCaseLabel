@@ -1,1 +1,1 @@
-testapp-InstrumentedPing - I use this to demonstrate prometheus instrumentation..
+testapp-camelCaseLabel - testing if camelCase labels
