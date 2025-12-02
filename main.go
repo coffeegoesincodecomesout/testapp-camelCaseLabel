@@ -12,7 +12,7 @@ import (
 
 var (
     counter = promauto.NewCounter(prometheus.CounterOpts{
-      Name: "ping_counter",
+      Name: "ping_summary_duration_ms",
       Help: "Counting the total number of requests handled",
     })
     
