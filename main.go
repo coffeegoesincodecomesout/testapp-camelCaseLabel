@@ -18,7 +18,7 @@ var (
     
     // must be registered
     gauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-      Name: "ping_gauge",
+      Name: "ping_gauge_summary_duration_ms",
       Help: "testing camelCase labels",
     }, []string{"node", "nameSpace"})
 )
