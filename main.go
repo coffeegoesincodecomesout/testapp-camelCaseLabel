@@ -20,14 +20,14 @@ var (
     gauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
       Name: "ping_gauge_summary_duration_ms",
       Help: "testing camelCase labels",
-    }, []string{"node", "nameSpace", "type"})
+    }, []string{"node", "type"})
 )
 
 func recordMetrics() {
     go func() {
       for {
         counter.Inc()
-        gauge.WithLabelValues("node-1", "/namespace-b", "nfs-1" ).Set(rand.Float64())
+        gauge.WithLabelValues("node-1", "/namespace-b" ).Set(rand.Float64())
         time.Sleep(time.Second * 5)
       }
     }()
